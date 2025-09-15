@@ -1,0 +1,41 @@
+services:
+  php:
+    container_name: php
+    build:
+      context: ./app
+      dockerfile: ./Dockerfile
+      target: dev
+      args:
+        - APP_ENV=dev
+        - APP_DEBUG=true
+        - XDEBUG_REMOTE_HOST=${XDEBUG_REMOTE_HOST:-172.23.0.1} # No Mac, substituir por: host.docker.internal
+        - DB_PASSWORD=root
+        - DB_USER=root
+        - DB_HOST=mysql
+        - DB_PORT=3306
+        - DB_NAME=app
+    ports:
+      - 8080:8080
+    volumes:
+      - ./app:/app
+    depends_on:
+      - mysql
+    networks:
+      - app
+
+  mysql:
+    container_name: mysql
+    image: mysql:8
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: app
+    volumes:
+      - ./mysql/:/var/lib/mysql:rw
+    networks:
+      - app
+
+networks:
+  app:
+    external: true

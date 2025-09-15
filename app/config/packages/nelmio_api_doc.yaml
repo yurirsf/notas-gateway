@@ -1,0 +1,14 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: Skeleton Lite
+            description: OpenAPI do projeto Skeleton Lite.
+            contact:
+                name: 'Superlógica - Arquitetura de Soluções (PED)'
+                url: 'https://www.superlogica.com/'
+                email: 'arquitetura-solucoes-ped@superlogica.com'
+            version: 1.0.0
+    areas: # to filter documented areas
+        default:
+            path_patterns:
+                - ^((?!_error|docs).)*$ # Accepts routes under /api except /api/doc

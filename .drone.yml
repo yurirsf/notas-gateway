@@ -1,0 +1,172 @@
+---
+kind: pipeline
+name: Skeleton
+
+clone:
+  disable: true
+
+steps:
+  - name: clone
+    image: drone/git
+    commands:
+      - git clone --branch $DRONE_SOURCE_BRANCH $DRONE_REMOTE_URL .
+
+  - name: build
+    image: docker/compose
+    volumes:
+      - name: docker_sock
+        path: /var/run/docker.sock
+    commands:
+      - docker build -f ./app/Dockerfile
+        -t skeleton-lite:${DRONE_COMMIT}
+        ./app
+        --pull=true
+        --build-arg APP_ENV=ci
+        --build-arg DB_HOST=$DB_HOST
+        --build-arg DB_USER=$DB_USER
+        --build-arg DB_PASSWORD=$DB_PASSWORD
+        --build-arg DB_NAME=$DB_NAME
+        --build-arg DB_PORT=$DB_PORT
+        --target ci
+    environment:
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: app
+    depends_on:
+      - clone
+
+  - name: phpunit_lint
+    image: skeleton-lite:${DRONE_COMMIT}
+    commands:
+      - mkdir -p /app/ -m 777
+      - cp /drone/src/app/* /app/ -R
+      - cd /app/
+      - ls -la
+      - composer install --no-scripts
+      - composer test-ci
+    depends_on:
+      - build
+
+  - name: sonar scan
+    image: sonarsource/sonar-scanner-cli:4.6
+    commands:
+      - cd app/
+      - sonar-scanner
+        -Dsonar.host.url=https://sonar.superlogica.com
+        -Dsonar.login=$SONAR_LOGIN_SMD
+        -Dsonar.projectKey=skeleton-lite
+        -Dsonar.projectVersion=$(git rev-parse HEAD)
+    environment:
+      SONAR_LOGIN_SMD:
+        from_secret: SONAR_LOGIN_SMD
+    depends_on:
+      - phpunit_lint
+
+services:
+  - name: mysql
+    image: mysql:8.0
+    ports:
+      - 3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    command:
+      [
+        "mysqld",
+        "--character-set-server=utf8",
+        "--collation-server=utf8_general_ci",
+        "--default-authentication-plugin=mysql_native_password",
+      ]
+
+volumes:
+  - name: docker_sock
+    host:
+      path: /var/run/docker.sock
+
+trigger:
+  event:
+    - pull_request
+  branch: [main, prod, staging]
+
+---
+kind: pipeline
+name: Skeleton Lite
+workspace:
+  path: /app/
+
+steps:
+  - name: publish
+    image: plugins/ecr:20.10.9
+    settings:
+      region: us-east-1
+      repo: skeleton-lite-${DRONE_BRANCH}
+      tags:
+        - latest
+      registry: 514867129338.dkr.ecr.us-east-1.amazonaws.com
+      context: ./app
+      target: prod
+      dockerfile: ./app/Dockerfile
+      build_args_from_env:
+        - APP_ENV
+        - APP_URL
+        - DD_VERSION
+        - DD_SERVICE
+        - DD_ENV
+        - DD_AGENT_HOST
+        - DD_TRACE_AGENT_PORT
+        - DB_USER
+        - DB_PASSWORD
+        - DB_HOST
+        - DB_PORT
+        - DB_NAME
+    environment:
+      FORCE_NEW_DEPLOYMENT: true
+      APP_ENV: ${DRONE_BRANCH}
+      APP_URL:
+        from_secret: APP_URL_${DRONE_BRANCH}
+      DD_VERSION: ${DRONE_COMMIT}
+      DD_SERVICE: skeleton-lite
+      DD_ENV: ${DRONE_BRANCH}
+      DD_AGENT_HOST:
+        from_secret: DD_AGENT_HOST_${DRONE_BRANCH}
+      DD_TRACE_AGENT_PORT:
+        from_secret: DD_TRACE_AGENT_PORT
+      DB_USER:
+        from_secret: DB_USER_${DRONE_BRANCH}
+      DB_PASSWORD:
+        from_secret: DB_PASSWORD_${DRONE_BRANCH}
+      DB_HOST:
+        from_secret: DB_HOST_${DRONE_BRANCH}
+      DB_PORT:
+        from_secret: DB_PORT_${DRONE_BRANCH}
+      DB_NAME:
+        from_secret: DB_NAME_${DRONE_BRANCH}
+
+  - name: deploy
+    image: gportugues/drone-ecs-deploy
+    settings:
+      cluster: arn:aws:ecs:us-east-1:514867021438:cluster/skeleton-lite-${DRONE_BRANCH}
+      service: skeleton-lite-${DRONE_BRANCH}
+      image_name: 514867029138.dkr.ecr.us-east-1.amazonaws.com/skeleton-lite-${DRONE_BRANCH}:latest
+      aws_region: us-east-1
+      timeout: "1200"
+      max: "200"
+      min: "100"
+      task_definition:
+        {
+          "taskDefinition":
+            {
+              "requiresCompatibilities": ["FARGATE", "EC2"],
+              "networkMode": "awsvpc",
+            },
+        }
+    environment:
+      FORCE_NEW_DEPLOYMENT: true
+    depends_on:
+      - publish
+trigger:
+  event:
+    - push
+  branch: [prod, staging]
