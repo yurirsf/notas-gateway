@@ -1,4 +1,4 @@
-# Skeleton PHP em Symfony
+# RBC Notas
 
 Esqueleto para começar um novo micro serviço PHP com a seguinte stack:
 
