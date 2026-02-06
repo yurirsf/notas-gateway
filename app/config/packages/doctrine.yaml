@@ -10,6 +10,9 @@ doctrine:
         logging: false
         profiling: false
 
+        types:
+            uuid: Ramsey\Uuid\Doctrine\UuidType
+
         # IMPORTANT: You MUST configure your server version,
         # either here or in the DATABASE_URL env var (see .env file)
         #server_version: '13'
@@ -20,8 +23,8 @@ doctrine:
         mappings:
             App:
                 is_bundle: false
-                dir: '%kernel.project_dir%/src/Entity'
-                prefix: 'App\Entity'
+                dir: '%kernel.project_dir%/src/Domain/Entity'
+                prefix: 'App\Domain\Entity'
                 alias: App
 
 when@test:

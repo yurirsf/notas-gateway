@@ -1,4 +1,4 @@
-FROM php:8.2-fpm-buster as base
+FROM php:8.2-fpm-bullseye as base
 
 # Declares all arguments
 ARG APP_ENV=dev
@@ -55,8 +55,15 @@ WORKDIR /app
 EXPOSE 8080
 
 # Instala dependencias do sistema operacional
-RUN apt update -y && \ 
-    apt install -y git libzip-dev libicu-dev nginx $PHPIZE_DEPS
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        git \
+        libzip-dev \
+        libicu-dev \
+        nginx \
+        $PHPIZE_DEPS && \
+    rm -rf /var/lib/apt/lists/*
+
 
 # Configure NGiNX
 ADD ./provision/docker/nginx/default.conf /etc/nginx/sites-enabled/default.conf
@@ -95,6 +102,10 @@ RUN docker-php-ext-install pdo_mysql && \
     docker-php-ext-install intl && \
     docker-php-ext-enable zip && \
     docker-php-ext-enable opcache
+
+# Extensão Redis (Messenger / filas)
+RUN printf "\n" | pecl install redis && \
+    docker-php-ext-enable redis
 
 FROM base as ci
 

@@ -39,5 +39,8 @@
         <env name="APP_ENV" value="dev"/>
         <env name="APP_SECRET" value="c3af64d2a4e764b82deb836bb805d105"/>
         <!-- ###- symfony/framework-bundle ### -->
+        <env name="EMPRESA_API_KEY" value="test-key"/>
+        <env name="INTEGRADOR_TOKEN" value="integrador-token"/>
+        <env name="CALLBACK_BASE_URL" value="https://{licenca}.superlogica.net"/>
   </php>
 </phpunit>

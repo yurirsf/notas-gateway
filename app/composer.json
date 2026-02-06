@@ -1,5 +1,5 @@
 {
-    "name": "superlogica/skeleton-php-symfony",
+    "name": "superlogica/rbc-nota",
     "type": "project",
     "authors": [
         {
@@ -47,14 +47,19 @@
         "doctrine/orm": "^3.3",
         "guzzlehttp/guzzle": "^7.9",
         "nelmio/api-doc-bundle": "^4.9",
-        "symfony/asset": "^7.2",
-        "symfony/cache": "^7.2",
-        "symfony/console": "^7.2",
-        "symfony/doctrine-bridge": "^7.2",
+        "ramsey/uuid": "^4.7",
+        "ramsey/uuid-doctrine": "^2.0",
+        "symfony/asset": "^7.3.7",
+        "symfony/cache": "^7.3.7",
+        "symfony/console": "^7.3.7",
+        "symfony/doctrine-bridge": "^7.3.7",
         "symfony/flex": "^2.2",
-        "symfony/framework-bundle": "^7.2",
+        "symfony/framework-bundle": "^7.3.7",
+        "symfony/messenger": "^7.3.7",
         "symfony/proxy-manager-bridge": "^6.4",
-        "symfony/runtime": "^7.2"
+        "symfony/redis-messenger": "7.3.*",
+        "symfony/runtime": "^7.3.7",
+        "symfony/validator": "^7.3.7"
     },
     "autoload": {
         "psr-4": {
@@ -91,7 +96,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": true,
-            "require": "7.2.*"
+            "require": "7.3.*"
         }
     }
 }

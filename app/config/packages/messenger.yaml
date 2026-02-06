@@ -1,0 +1,16 @@
+framework:
+    messenger:
+        failure_transport: failed
+
+        transports:
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                retry_strategy:
+                    max_retries: 4
+                    delay: 60000
+                    multiplier: 5
+                    max_delay: 1800000
+            failed: 'doctrine://default?queue_name=failed'
+
+        routing:
+            App\Application\Integrador\EventoFiscalMessage: async
