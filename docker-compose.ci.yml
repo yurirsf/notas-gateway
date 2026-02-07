@@ -2,7 +2,7 @@ services:
   php:
     build:
       context: ./app
-      dockerfile: ./app/Dockerfile
+      dockerfile: Dockerfile
       target: ci
     volumes:
       - ./app:/app
