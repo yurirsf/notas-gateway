@@ -22,6 +22,7 @@ services:
 
     App\Domain\Repository\LicencaRepositoryInterface:
         class: App\Infrastructure\Persistence\Doctrine\LicencaRepository
+        public: true
 
     App\Infrastructure\Security\EmpresaApiKeySubscriber:
         arguments:

@@ -71,6 +71,11 @@ final class EventoFiscalMessage
         return $this->empresaId;
     }
 
+    public function getNfeIdExterno(): ?string
+    {
+        return $this->nfeIdExterno;
+    }
+
     /**
      * @return array<string, string>
      */

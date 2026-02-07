@@ -45,7 +45,7 @@ class EmpresaController extends AbstractController
 
             return new JsonResponse([
                 'errors' => $errors,
-                'message' => 'Validação falhou',
+                'message' => 'Validation failed',
             ], Response::HTTP_BAD_REQUEST);
         }
 

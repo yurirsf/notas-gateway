@@ -109,13 +109,19 @@ RUN printf "\n" | pecl install redis && \
 
 FROM base as ci
 
+ENV APP_ENV=testing
+ENV APP_DEBUG=false
+
+FROM base as dev
+
 RUN pecl install xdebug-3.2.2 && \
     docker-php-ext-enable xdebug
 
-FROM ci as dev
-
 ARG XDEBUG_REMOTE_HOST="172.23.0.1"
 RUN sed -i "s|xdebug.client_host=localhost|xdebug.client_host=$XDEBUG_REMOTE_HOST|g" /usr/local/etc/php/php.ini
+
+ENV APP_ENV=dev
+ENV APP_DEBUG=true
 
 FROM base as prod
 

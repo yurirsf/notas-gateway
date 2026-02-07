@@ -13,11 +13,16 @@ final class EmpresaApiKeySubscriber implements EventSubscriberInterface
 {
     private const EMPRESA_PATH = '/empresa';
 
-    public function __construct(
-        private readonly string $apiKey,
-    ) {
+    private readonly string $apiKey;
+
+    public function __construct(string $apiKey)
+    {
+        $this->apiKey = $apiKey;
     }
 
+    /**
+     * @return array<string, array<int, string|int>>
+     */
     public static function getSubscribedEvents(): array
     {
         return [
@@ -57,8 +62,8 @@ final class EmpresaApiKeySubscriber implements EventSubscriberInterface
 
         $auth = $request->headers->get('Authorization', '');
 
-        if (str_starts_with($auth, 'Bearer ')) {
-            return trim(substr($auth, 7));
+        if (\str_starts_with($auth, 'Bearer ')) {
+            return \trim(\substr($auth, 7));
         }
 
         return '';

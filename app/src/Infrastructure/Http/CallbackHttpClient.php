@@ -32,7 +32,7 @@ final class CallbackHttpClient implements CallbackHttpClientInterface
                 'timeout' => 30,
             ]);
         } catch (GuzzleException $e) {
-            $this->logger->error('Requisição de callback falhou', [
+            $this->logger->error('Callback HTTP request failed', [
                 'message' => $e->getMessage(),
                 'url' => $url,
             ]);

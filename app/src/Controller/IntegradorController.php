@@ -57,7 +57,7 @@ class IntegradorController extends AbstractController
             return new JsonResponse(
                 [
                     'errors' => $errors,
-                    'message' => 'Validação falhou',
+                    'message' => 'Validation failed',
                 ],
                 Response::HTTP_BAD_REQUEST,
             );
@@ -67,7 +67,7 @@ class IntegradorController extends AbstractController
 
         return new JsonResponse(
             [
-                'message' => 'Aceito',
+                'message' => 'Accepted',
                 'status' => Response::HTTP_ACCEPTED,
             ],
             Response::HTTP_ACCEPTED,
