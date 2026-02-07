@@ -18,7 +18,8 @@ class RegisterEmpresaHandlerTest extends TestCase
 {
     use ProphecyTrait;
 
-    private LicencaRepositoryInterface|ObjectProphecy $repository;
+    /** @var ObjectProphecy<LicencaRepositoryInterface> */
+    private ObjectProphecy $repository;
 
     private RegisterEmpresaHandler $handler;
 

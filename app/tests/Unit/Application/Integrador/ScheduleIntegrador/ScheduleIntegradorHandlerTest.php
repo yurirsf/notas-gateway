@@ -16,7 +16,8 @@ class ScheduleIntegradorHandlerTest extends TestCase
 {
     use ProphecyTrait;
 
-    private MessageBusInterface|ObjectProphecy $messageBus;
+    /** @var ObjectProphecy<MessageBusInterface> */
+    private ObjectProphecy $messageBus;
 
     private ScheduleIntegradorHandler $handler;
 

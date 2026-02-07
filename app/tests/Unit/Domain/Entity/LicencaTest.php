@@ -18,8 +18,6 @@ class LicencaTest extends TestCase
         $this->assertSame($id, $licenca->getId());
         $this->assertSame('empresa123', $licenca->getLicenca());
         $this->assertSame($tokenIntegracao, $licenca->getTokenIntegracao());
-        $this->assertInstanceOf(\DateTimeImmutable::class, $licenca->getCreatedAt());
-        $this->assertInstanceOf(\DateTimeImmutable::class, $licenca->getUpdatedAt());
     }
 
     public function testTouchUpdatesUpdatedAt(): void

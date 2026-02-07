@@ -16,9 +16,11 @@ class CallbackHttpClientTest extends TestCase
 {
     use ProphecyTrait;
 
-    private Client|ObjectProphecy $guzzle;
+    /** @var ObjectProphecy<Client> */
+    private ObjectProphecy $guzzle;
 
-    private LoggerInterface|ObjectProphecy $logger;
+    /** @var ObjectProphecy<LoggerInterface> */
+    private ObjectProphecy $logger;
 
     private CallbackHttpClient $client;
 

@@ -18,11 +18,14 @@ class ProcessIntegradorHandlerTest extends TestCase
 {
     use ProphecyTrait;
 
-    private LicencaRepositoryInterface|ObjectProphecy $repository;
+    /** @var ObjectProphecy<LicencaRepositoryInterface> */
+    private ObjectProphecy $repository;
 
-    private CallbackHttpClientInterface|ObjectProphecy $callbackClient;
+    /** @var ObjectProphecy<CallbackHttpClientInterface> */
+    private ObjectProphecy $callbackClient;
 
-    private LoggerInterface|ObjectProphecy $logger;
+    /** @var ObjectProphecy<LoggerInterface> */
+    private ObjectProphecy $logger;
 
     private ProcessIntegradorHandler $handler;
 
