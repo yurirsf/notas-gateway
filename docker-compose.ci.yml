@@ -6,15 +6,18 @@ services:
       target: ci
     volumes:
       - ./app:/app
+      - ./.composer-cache:/tmp/composer-cache
     depends_on:
       - mysql
       - redis
     environment:
       APP_ENV: testing
+      COMPOSER_HOME: /tmp/composer-cache
+      DATABASE_URL: "mysql://root:root@mysql:3306/app_test?serverVersion=8&charset=utf8mb4"
       DB_HOST: mysql
       DB_NAME: app_test
-      DB_USER: root
       DB_PASSWORD: root
+      DB_USER: root
 
   mysql:
     image: mysql:8

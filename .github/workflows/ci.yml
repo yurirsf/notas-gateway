@@ -13,6 +13,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Composer cache
+        uses: actions/cache@v4
+        with:
+          path: .composer-cache
+          key: composer-${{ runner.os }}-${{ hashFiles('app/composer.lock') }}
+          restore-keys: |
+            composer-${{ runner.os }}-
+
       - name: Build containers
         run: docker compose -f docker-compose.ci.yml build
 
