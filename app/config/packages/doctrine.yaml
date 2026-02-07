@@ -1,6 +1,9 @@
+parameters:
+    default_database_url: 'mysql://root:root@127.0.0.1:3306/app?serverVersion=8&charset=utf8mb4'
+
 doctrine:
     dbal:
-        url: '%env(resolve:DATABASE_URL)%'
+        url: '%env(default:default_database_url:DATABASE_URL)%'
         persistent: true
         logging: false
         profiling: false
