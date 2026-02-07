@@ -10,12 +10,20 @@ use Psr\Log\LoggerInterface;
 
 final class CallbackHttpClient implements CallbackHttpClientInterface
 {
-    public function __construct(
-        private readonly Client $httpClient,
-        private readonly LoggerInterface $logger,
-    ) {
+    private readonly Client $httpClient;
+
+    private readonly LoggerInterface $logger;
+
+    public function __construct(Client $httpClient, LoggerInterface $logger)
+    {
+        $this->httpClient = $httpClient;
+        $this->logger = $logger;
     }
 
+    /**
+     * @param string               $url     ULR a ser usada
+     * @param array<string, mixed> $payload Payload a ser enviado
+     */
     public function sendPost(string $url, array $payload): void
     {
         try {
@@ -25,8 +33,8 @@ final class CallbackHttpClient implements CallbackHttpClientInterface
             ]);
         } catch (GuzzleException $e) {
             $this->logger->error('Requisição de callback falhou', [
-                'url' => $url,
                 'message' => $e->getMessage(),
+                'url' => $url,
             ]);
             throw $e;
         }

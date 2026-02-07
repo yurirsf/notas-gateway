@@ -14,36 +14,49 @@ final class ProcessIntegradorHandler
 {
     private const CALLBACK_ENDPOINT = '/endpoint';
 
+    private readonly LicencaRepositoryInterface $licencaRepository;
+
+    private readonly CallbackHttpClientInterface $callbackHttpClient;
+
+    private readonly string $callbackBaseUrl;
+
+    private readonly LoggerInterface $logger;
+
     public function __construct(
-        private readonly LicencaRepositoryInterface $licencaRepository,
-        private readonly CallbackHttpClientInterface $callbackHttpClient,
-        private readonly string $callbackBaseUrl,
-        private readonly LoggerInterface $logger,
+        LicencaRepositoryInterface $licencaRepository,
+        CallbackHttpClientInterface $callbackHttpClient,
+        string $callbackBaseUrl,
+        LoggerInterface $logger
     ) {
+        $this->licencaRepository = $licencaRepository;
+        $this->callbackHttpClient = $callbackHttpClient;
+        $this->callbackBaseUrl = $callbackBaseUrl;
+        $this->logger = $logger;
     }
 
     public function __invoke(EventoFiscalMessage $message): void
     {
         $this->logger->info('Processando evento do integrador.', [
-            'empresaId' => $message->empresaId,
-            'tipo' => $message->tipo,
+            'empresaId' => $message->getEmpresaId(),
+            'tipo' => $message->getTipo(),
         ]);
 
-        $licenca = $this->licencaRepository->findByTokenIntegracao($message->empresaId);
+        $licenca = $this->licencaRepository->findByTokenIntegracao($message->getEmpresaId());
 
         if ($licenca === null) {
             $this->logger->warning('Licença não encontrada para o token_integracao informado.', [
-                'empresaId' => $message->empresaId,
+                'empresaId' => $message->getEmpresaId(),
             ]);
+
             return;
         }
 
-        $url = str_replace('{licenca}', $licenca->getLicenca(), $this->callbackBaseUrl) . self::CALLBACK_ENDPOINT;
+        $url = \str_replace('{licenca}', $licenca->getLicenca(), $this->callbackBaseUrl) . self::CALLBACK_ENDPOINT;
         $this->callbackHttpClient->sendPost($url, $message->toArray());
 
         $this->logger->info('Callback entregue.', [
+            'empresaId' => $message->getEmpresaId(),
             'url' => $url,
-            'empresaId' => $message->empresaId,
         ]);
     }
 }

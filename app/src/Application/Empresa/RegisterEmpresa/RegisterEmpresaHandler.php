@@ -9,39 +9,39 @@ use Ramsey\Uuid\Uuid;
 
 final class RegisterEmpresaHandler
 {
-    public function __construct(
-        private readonly LicencaRepositoryInterface $licencaRepository,
-    ) {
+    private readonly LicencaRepositoryInterface $licencaRepository;
+
+    public function __construct(LicencaRepositoryInterface $licencaRepository)
+    {
+        $this->licencaRepository = $licencaRepository;
     }
 
     public function handle(RegisterEmpresaInput $input): RegisterEmpresaResult
     {
-        $existingByLicenca = $this->licencaRepository->findByLicenca($input->licenca);
+        $existingByLicenca = $this->licencaRepository->findByLicenca($input->getLicenca());
 
         if ($existingByLicenca !== null) {
             throw new LicencaAlreadyRegisteredException(
-                sprintf('Já existe uma licença registrada com o identificador "%s".', $input->licenca),
+                \sprintf('Já existe uma licença registrada com o identificador "%s".', $input->getLicenca())
             );
         }
 
-        $existingByToken = $this->licencaRepository->findByTokenIntegracao($input->tokenIntegracao);
+        $existingByToken = $this->licencaRepository->findByTokenIntegracao($input->getTokenIntegracao());
 
         if ($existingByToken !== null) {
-            throw new TokenIntegracaoAlreadyUsedException(
-                'O token_integracao informado já está em uso.',
-            );
+            throw new TokenIntegracaoAlreadyUsedException('O token_integracao informado já está em uso.');
         }
 
         $id = Uuid::uuid4();
-        $tokenIntegracao = Uuid::fromString($input->tokenIntegracao);
-        $licenca = new Licenca($id, $input->licenca, $tokenIntegracao);
+        $tokenIntegracao = Uuid::fromString($input->getTokenIntegracao());
+        $licenca = new Licenca($id, $input->getLicenca(), $tokenIntegracao);
 
         $this->licencaRepository->save($licenca);
 
         return new RegisterEmpresaResult(
-            id: $id->toString(),
-            licenca: $licenca->getLicenca(),
-            tokenIntegracao: $licenca->getTokenIntegracao()->toString()
+            $id->toString(),
+            $licenca->getLicenca(),
+            $licenca->getTokenIntegracao()->toString()
         );
     }
 }

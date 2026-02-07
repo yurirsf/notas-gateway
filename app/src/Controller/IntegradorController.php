@@ -14,10 +14,14 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class IntegradorController extends AbstractController
 {
-    public function __construct(
-        private readonly ScheduleIntegradorHandler $scheduleIntegradorHandler,
-        private readonly ValidatorInterface $validator,
-    ) {
+    private readonly ScheduleIntegradorHandler $scheduleIntegradorHandler;
+
+    private readonly ValidatorInterface $validator;
+
+    public function __construct(ScheduleIntegradorHandler $scheduleIntegradorHandler, ValidatorInterface $validator)
+    {
+        $this->scheduleIntegradorHandler = $scheduleIntegradorHandler;
+        $this->validator = $validator;
     }
 
     #[Route('/integrador', name: 'app_integrador_schedule', methods: ['POST'])]
@@ -52,8 +56,8 @@ class IntegradorController extends AbstractController
 
             return new JsonResponse(
                 [
-                    'message' => 'Validação falhou',
                     'errors' => $errors,
+                    'message' => 'Validação falhou',
                 ],
                 Response::HTTP_BAD_REQUEST,
             );

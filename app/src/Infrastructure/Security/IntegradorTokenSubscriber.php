@@ -13,11 +13,16 @@ final class IntegradorTokenSubscriber implements EventSubscriberInterface
 {
     private const INTEGRADOR_PATH = '/integrador';
 
-    public function __construct(
-        private readonly string $integradorToken,
-    ) {
+    private readonly string $integradorToken;
+
+    public function __construct(string $integradorToken)
+    {
+        $this->integradorToken = $integradorToken;
     }
 
+    /**
+     * @return array<string, array<int, string|int>>
+     */
     public static function getSubscribedEvents(): array
     {
         return [
@@ -52,8 +57,8 @@ final class IntegradorTokenSubscriber implements EventSubscriberInterface
     private function extractToken(\Symfony\Component\HttpFoundation\Request $request): string
     {
         $auth = $request->headers->get('Authorization', '');
-        if (str_starts_with($auth, 'Bearer ')) {
-            return trim(substr($auth, 7));
+        if (\str_starts_with($auth, 'Bearer ')) {
+            return \trim(\substr($auth, 7));
         }
 
         return '';

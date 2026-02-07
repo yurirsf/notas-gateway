@@ -14,10 +14,14 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class EmpresaController extends AbstractController
 {
-    public function __construct(
-        private readonly RegisterEmpresaHandler $registerEmpresaHandler,
-        private readonly ValidatorInterface $validator,
-    ) {
+    private readonly RegisterEmpresaHandler $registerEmpresaHandler;
+
+    private readonly ValidatorInterface $validator;
+
+    public function __construct(RegisterEmpresaHandler $registerEmpresaHandler, ValidatorInterface $validator)
+    {
+        $this->registerEmpresaHandler = $registerEmpresaHandler;
+        $this->validator = $validator;
     }
 
     #[Route('/empresa', name: 'app_empresa_register', methods: ['POST'])]
@@ -40,8 +44,8 @@ class EmpresaController extends AbstractController
             }
 
             return new JsonResponse([
-                'message' => 'Validação falhou',
                 'errors' => $errors,
+                'message' => 'Validação falhou',
             ], Response::HTTP_BAD_REQUEST);
         }
 

@@ -10,9 +10,11 @@ use Ramsey\Uuid\Uuid;
 
 class LicencaRepository implements LicencaRepositoryInterface
 {
-    public function __construct(
-        private readonly EntityManagerInterface $entityManager,
-    ) {
+    private readonly EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
     }
 
     public function save(Licenca $licenca): void

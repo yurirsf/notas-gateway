@@ -8,27 +8,29 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 final class ScheduleIntegradorHandler
 {
-    public function __construct(
-        private readonly MessageBusInterface $messageBus,
-    ) {
+    private readonly MessageBusInterface $messageBus;
+
+    public function __construct(MessageBusInterface $messageBus)
+    {
+        $this->messageBus = $messageBus;
     }
 
     public function handle(IntegradorPayloadInput $input): void
     {
         $message = new EventoFiscalMessage(
-            tipo: $input->tipo,
-            empresaId: $input->empresaId,
-            nfeId: $input->nfeId,
-            nfeIdExterno: $input->nfeIdExterno,
-            nfeStatus: $input->nfeStatus,
-            nfeMotivoStatus: $input->nfeMotivoStatus,
-            nfeLinkPdf: $input->nfeLinkPdf,
-            nfeLinkXml: $input->nfeLinkXml,
-            nfeNumero: $input->nfeNumero,
-            nfeCodigoVerificacao: $input->nfeCodigoVerificacao,
-            nfeNumeroRps: $input->nfeNumeroRps,
-            nfeSerieRps: $input->nfeSerieRps,
-            nfeDataCompetencia: $input->nfeDataCompetencia,
+            $input->getTipo(),
+            $input->getEmpresaId(),
+            $input->getNfeIdExterno(),
+            $input->getNfeId(),
+            $input->getNfeStatus(),
+            $input->getNfeMotivoStatus(),
+            $input->getNfeLinkPdf(),
+            $input->getNfeLinkXml(),
+            $input->getNfeNumero(),
+            $input->getNfeCodigoVerificacao(),
+            $input->getNfeNumeroRps(),
+            $input->getNfeSerieRps(),
+            $input->getNfeDataCompetencia()
         );
 
         $this->messageBus->dispatch($message);
