@@ -1,93 +1,42 @@
 # RBC Notas
+<img width="8128" height="1985" alt="Licenca Domain HTTP Flow-2026-02-09-172533" src="https://github.com/user-attachments/assets/f1698380-b37b-4d68-bdcd-470787fc8da9" />
 
-Esqueleto para começar um novo micro serviço PHP com a seguinte stack:
-
-- PHP 8.2
-- Symfony Framework 7.3.X
-- Doctrine & Doctrine Migrations
-- MySQL
-- Ferramentas de QA
-- Open API
-
-## Instalação
-
-1. Instale a última versão do `docker` e `docker-compose`.
-
-2. Clone este repositório.
-
-3. Suba o ambiente:
-
-`make up`
-
-4. Para ver se está tudo ok, acesse [http://127.0.0.1:8080/healthcheck](http://127.0.0.1:8080/healthcheck) e veja uma resposta como:
-
-``` 
+O RBC Notas é um Gateway de Integração projetado para conectar o ERP Superlógica ao integrador de Notas.
+Por limitação do integrador atual, o webhook é enviado apenas para uma url específica, passando um header de autorização com as seguintes informações:
+```json
 {
-    "msg":"ok",
-    "datetime":"2020-06-21T01:49:25Z",
-    "timestamp":"1592704165"
+    "tipo": "NFS-e",
+    "empresaId": "string",
+    "nfeId": "string",
+    "nfeIdExterno": "string",
+    "nfeStatus": "string",
+    "nfeMotivoStatus": "string",
+    "nfeLinkPdf": "http://api.enotasgw.com.br/file/(...)/pdf",
+    "nfeLinkXml": "http://api.enotasgw.com.br/file/(...)/xml",
+    "nfeNumero": "string",
+    "nfeCodigoVerificacao": "string",
+    "nfeNumeroRps": "string",
+    "nfeSerieRps": "string",
+    "nfeDataCompetencia": "date"
 }
-``` 
 
-Execute `make help` para conhecer outros comandos.
+```
+O que o RBC Notas faz é identificar a licença pelo campo `empresaId` cadastrado no banco de dados e encaminhar a requisição para a licença.
 
-## CLI
 
-`$ make bash`
+# O que é o Route-based Content (RBC)?
 
-Digite o comando abaixo para listar todos os possiveis comandos
-`$ console`
+O conceito de Route-based Content no projeto refere-se à inteligência de Roteamento Dinâmico de Conteúdo.
+O sistema processa o payload, identifica a licença do cliente e roteia a informação para o endpoint específico do parceiro no formato: {licenca}.superlogica.com/endpoint.
+Isso permite que uma única API centralize milhares de integrações, tratando cada payload de forma isolada e personalizada conforme a origem.
 
-Gerar controller:
-`$ console make:controller`
+# Como Funciona?
 
-Gerar entidade:
-`$ console make:entity`
+<img width="703" height="706" alt="Diagrama RBC Notas drawio" src="https://github.com/user-attachments/assets/34f37722-7cfd-40a1-b0df-cafa001cd040" />
 
-Exibir as rotas:
-`$ console debug:router`
 
-## Depuração
-
-- [Configurar depurador (Xdebug)](./docs/debugger.md)
-- [Symfony Profiler](http://127.0.0.1:8080/_profiler) [(docs)](https://symfony.com/doc/current/profiler.html)
-- Comandos `console debug:alguma-coisa`
-
-## Padrão de codificação
-
-1. Regras especificadas em `phpcs.xml`, `phpstan.neon`, `psalm.xml`.
-1. Proibido o uso de `else`.
-2. Aplicar Object Calisthenics - [vídeo](https://www.youtube.com/watch?v=u-w4eULRrr0) [slides](https://pt.slideshare.net/guilhermeblanco/php-para-adultos-clean-code-e-object-calisthenics)
-    - Early returns
-    - Apenas 1 nível de identação
-3. Um objeto jamais pode se permitir entrar em um estádo inválido. Nunca construir um objeto inválido.
-4. SOLID
-
-## Migration
-
-1. Para gerar os scripts de migration após alterações nos schemas (entities), execute o seguinte comando:
-
-`docker-compose exec php console doctrine:migrations:diff`
-
-2. Os scripts serão gerados no diretório `api/src/Core/Migrations`
-
-3. Os scripts de migration são executados no comando `make up`. Para executá-los manualmente em ambiente local, execute o seguinte comando:
-
-`docker-compose exec php console doctrine:migrations:migrate`
-
-## Após criar o fork
-
-### Configurar servidor de integração continua
-
-Acessar o [CI (Drone)](https://github-drone.superlogica.com/) e localizar o repositório. Clicar no botão `Activate`.
-
-Peça para o time DevOps:
-
-1. Definir o segredo `SL_SONAR_PROJECT_TOKEN` no repositório - necessário para que os reports sejam enviados para o [SonarQube](https://sonar.superlogica.com).
-2. Marcar o repositório como `trusted` no Drone - mecessário para que seja possível montar volumes no host. 
-
-Ativar o projeto no servidor de integração continua da empresa: 
-
-## Infraestrutura como código:
-    - [Repositório do Skeleton](https://github.com/Superlogica/skeleton-php-infra)
-    - [API Gateway](https://github.com/Superlogica/skeleton-php-api-gateway-http)
+Cadastro da Licença: A licença é cadastrada apenas com o token de integração e o nome da licença;
+Webhook da Nota: O integrador envia o webhook para o endpoint que identifica a licença e agenda o envio dos dados;
+Agendamento: O payload é imediatamente colocado em uma fila Messenger Symfony com Redis.
+Processamento Assíncrono: Um worker consome a fila e executa as regras de negócio baseadas em Clean Architecture, isolando a lógica de atualização da nota de qualquer dependência externa.
+Despacho Dinâmico: O RBC identifica o destino correto via banco de dados e entrega a nota fiscal processada para a URL dinâmica da empresa.
