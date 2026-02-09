@@ -26,7 +26,7 @@ class ListenerHttpExceptionTest extends TestCase
             kernel: $kernel->reveal(),
             request: $request,
             requestType: 1,
-            e: $exception,
+            e: $exception
         );
 
         $listener = new ListenerHttpException();
@@ -45,7 +45,7 @@ class ListenerHttpExceptionTest extends TestCase
             kernel: $kernel->reveal(),
             request: $request,
             requestType: 1,
-            e: $exception,
+            e: $exception
         );
 
         $listener = new ListenerHttpException();

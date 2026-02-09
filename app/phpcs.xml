@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <ruleset name="superlogica/skeleton-symfony">
-  <description>A custom coding standard based on Doctrine and PSRs</description>
+  <description>A custom coding standard based on Doctrine, PSRs and SuperlÃ³gica Codestyle (indentaÃ§Ã£o 4 espaÃ§os, limite 120 cols, doc sem alinhamento, linha em branco antes de return).</description>
 
   <arg name="colors" />
   <arg value="s" />
@@ -20,6 +20,8 @@
     <exclude name="Symfony.NamingConventions.ValidClassName.InvalidInterfaceName" />
     <exclude name="Symfony.NamingConventions.ValidClassName.InvalidTraitName" />
     <exclude name="Squiz.Strings.ConcatenationSpacing.PaddingFound" />
+    <exclude name="PEAR.Functions.FunctionCallSignature.Indent" />
+    <exclude name="Symfony.ControlStructure.YodaConditions.Invalid" />
   </rule>
 
 
@@ -67,6 +69,7 @@
     <exclude name="SlevomatCodingStandard.Classes.DisallowLateStaticBindingForConstants.DisallowedLateStaticBindingForConstant" />
     <exclude name="SlevomatCodingStandard.Classes.SuperfluousAbstractClassNaming.SuperfluousPrefix" />
     <exclude name="SlevomatCodingStandard.Classes.SuperfluousTraitNaming" />
+    <exclude name="SlevomatCodingStandard.Classes.SuperfluousInterfaceNaming.SuperfluousSuffix" />
     <exclude name="SlevomatCodingStandard.Classes.TraitUseSpacing.IncorrectLinesCountAfterLastUse" />
     <exclude name="SlevomatCodingStandard.Classes.TraitUseSpacing.IncorrectLinesCountBeforeFirstUse" />
     <exclude name="SlevomatCodingStandard.Commenting.DisallowOneLinePropertyDocComment.OneLinePropertyComment" />
@@ -97,6 +100,8 @@
     <exclude name="SlevomatCodingStandard.TypeHints.DisallowArrayTypeHintSyntax.DisallowedArrayTypeHintSyntax" />
     <exclude name="SlevomatCodingStandard.TypeHints.DisallowMixedTypeHint.DisallowedMixedTypeHint" />
     <exclude name="SlevomatCodingStandard.Files.TypeNameMatchesFileName.NoMatchBetweenTypeNameAndFileName" />
+    <!-- Sniff deprecado desde 8.16, substituído por DNFTypeHintFormat -->
+    <exclude name="SlevomatCodingStandard.TypeHints.UnionTypeHintFormat" />
     <!-- sniffs should not be excluded since annotation sniffs are moved to UselessFunctionDocCommentSniff -->
     <!--        <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHintSniff"/>-->
     <!--        <exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHintSniff"/>-->
@@ -192,8 +197,15 @@
 
   <rule ref="Generic.Files.LineLength">
     <properties>
-      <property name="lineLimit" value="180" />
-      <property name="absoluteLineLimit" value="180" />
+      <property name="lineLimit" value="120" />
+      <property name="absoluteLineLimit" value="120" />
+    </properties>
+  </rule>
+
+  <rule ref="Generic.WhiteSpace.ScopeIndent">
+    <properties>
+      <property name="indent" value="4" />
+      <property name="tabIndent" value="false" />
     </properties>
   </rule>
 

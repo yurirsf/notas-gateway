@@ -2,3 +2,5 @@
 */vendor
 # pasta do mysql
 mysql/
+# Cache do Composer (CI)
+.composer-cache/

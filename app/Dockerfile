@@ -1,13 +1,12 @@
-FROM php:8.2-fpm-buster as base
+FROM php:8.2-fpm-bullseye AS base
 
 # Declares all arguments
 ARG APP_ENV=dev
 ARG APP_DEBUG=true
 ARG DEPLOY_CMD=php-fpm
 
-# Database
+# Database (DB_PASSWORD must be injected at runtime, not as ARG/ENV, for security)
 ARG DB_USER
-ARG DB_PASSWORD
 ARG DB_HOST
 ARG DB_PORT
 ARG DB_NAME
@@ -21,23 +20,22 @@ ARG DD_AGENT_HOST
 ARG DD_TRACE_AGENT_PORT
 
 # Bind all arguments to environment variables
-ENV APP_ENV    $APP_ENV
-ENV APP_DEBUG  $APP_DEBUG
-ENV DEPLOY_CMD $DEPLOY_CMD
+ENV APP_ENV=$APP_ENV
+ENV APP_DEBUG=$APP_DEBUG
+ENV DEPLOY_CMD=$DEPLOY_CMD
 
-# Database configs
-ENV DB_USER              $DB_USER
-ENV DB_PASSWORD          $DB_PASSWORD
-ENV DB_HOST              $DB_HOST
-ENV DB_PORT              $DB_PORT
-ENV DB_NAME              $DB_NAME
+# Database configs (DB_PASSWORD must be set at runtime via -e or compose)
+ENV DB_USER=$DB_USER
+ENV DB_HOST=$DB_HOST
+ENV DB_PORT=$DB_PORT
+ENV DB_NAME=$DB_NAME
 
 # Datadog configs
-ENV DD_SERVICE               $DD_SERVICE
-ENV DD_ENV                   $DD_ENV
-ENV DD_VERSION               $DD_VERSION
-ENV DD_AGENT_HOST            $DD_AGENT_HOST
-ENV DD_TRACE_AGENT_PORT      $DD_TRACE_AGENT_PORT
+ENV DD_SERVICE=$DD_SERVICE
+ENV DD_ENV=$DD_ENV
+ENV DD_VERSION=$DD_VERSION
+ENV DD_AGENT_HOST=$DD_AGENT_HOST
+ENV DD_TRACE_AGENT_PORT=$DD_TRACE_AGENT_PORT
 
 ENV DD_APM_NON_LOCAL_TRAFFIC=1
 ENV DD_LOGS_ENABLED=true
@@ -55,8 +53,15 @@ WORKDIR /app
 EXPOSE 8080
 
 # Instala dependencias do sistema operacional
-RUN apt update -y && \ 
-    apt install -y git libzip-dev libicu-dev nginx $PHPIZE_DEPS
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        git \
+        libzip-dev \
+        libicu-dev \
+        nginx \
+        $PHPIZE_DEPS && \
+    rm -rf /var/lib/apt/lists/*
+
 
 # Configure NGiNX
 ADD ./provision/docker/nginx/default.conf /etc/nginx/sites-enabled/default.conf
@@ -81,8 +86,8 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 # Sets entrypoint
 ENTRYPOINT ["sh", "/usr/local/bin/docker-entrypoint.sh"]
 
-# Command
-CMD ${DEPLOY_CMD}
+# Command (JSON form for proper signal handling)
+CMD ["sh", "-c", "exec $DEPLOY_CMD"]
 
 # Copy composer.phar
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -96,17 +101,27 @@ RUN docker-php-ext-install pdo_mysql && \
     docker-php-ext-enable zip && \
     docker-php-ext-enable opcache
 
-FROM base as ci
+# Extensão Redis (Messenger / filas)
+RUN printf "\n" | pecl install redis && \
+    docker-php-ext-enable redis
+
+FROM base AS ci
+
+ENV APP_ENV=testing
+ENV APP_DEBUG=false
+
+FROM base AS dev
 
 RUN pecl install xdebug-3.2.2 && \
     docker-php-ext-enable xdebug
 
-FROM ci as dev
-
 ARG XDEBUG_REMOTE_HOST="172.23.0.1"
 RUN sed -i "s|xdebug.client_host=localhost|xdebug.client_host=$XDEBUG_REMOTE_HOST|g" /usr/local/etc/php/php.ini
 
-FROM base as prod
+ENV APP_ENV=dev
+ENV APP_DEBUG=true
+
+FROM base AS prod
 
 # Datadog
 RUN cd /tmp/ && \
@@ -130,3 +145,4 @@ COPY ./config       /app/config
 COPY ./migrations   /app/migrations
 COPY ./public       /app/public
 COPY ./src          /app/src
+COPY ./templates    /app/templates

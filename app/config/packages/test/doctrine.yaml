@@ -1,0 +1,4 @@
+# Ambiente de teste: DATABASE_URL é definido em phpunit.xml (sqlite:///:memory:).
+# Não é necessário sobrescrever aqui; o config principal usa url: '%env(resolve:DATABASE_URL)%'.
+doctrine:
+    dbal: {}

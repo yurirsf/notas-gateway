@@ -1,0 +1,33 @@
+includes:
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+    - vendor/phpstan/phpstan-phpunit/rules.neon
+
+parameters:
+    level: 6
+    reportUnmatchedIgnoredErrors: false
+    bootstrapFiles:
+        - vendor/autoload.php
+    paths:
+        - bin/
+        - config/
+        - public/
+        - src/
+        - tests/
+    excludePaths:
+        - tests/bootstrap.php
+    ignoreErrors:
+        -
+            message: '#Call to an undefined method .* (willReturn|shouldBeCalledOnce|shouldNotBeCalled|willThrow)\(\)#'
+            path: tests/
+        -
+            message: '#Cannot call method (shouldBeCalledOnce|shouldNotBeCalled) on null#'
+            path: tests/
+        -
+            message: '~Parameter #\d+.*Prophecy\\\\Argument|expects [^,]+, Prophecy\\\\Argument~'
+            path: tests/
+        -
+            message: '#Result of method .* \(void\) is used#'
+            path: tests/
+        -
+            identifier: method.notFound
+            path: tests/
